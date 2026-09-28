@@ -137,8 +137,43 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 7. GA4 EVENT TRACKING FOR WHATSAPP
-  document.querySelectorAll('a[href*="wa.me"]').forEach(btn => {
+  // 7. ANTI-SPAM OBFUSCATION & DYNAMIC CONTACT LINKS
+  // Decodes base64-encoded contact data to shield email and phone numbers from automated web scrapers
+  const encodedEmail = 'c2lkLmFyb3JhODQzN0BnbWFpbC5jb20='; // sid.arora8437@gmail.com
+  const encodedPhone = 'OTE4NjUyMDgyMzc3';                 // 918652082377
+  const phoneFormatted = '+91 8652082377';
+
+  try {
+    const rawEmail = atob(encodedEmail);
+    const rawPhone = atob(encodedPhone);
+
+    // Populate email elements
+    document.querySelectorAll('.protected-email').forEach(el => {
+      el.href = `mailto:${rawEmail}`;
+      const target = el.querySelector('.protected-email-display');
+      if (target) {
+        target.textContent = rawEmail;
+      }
+    });
+
+    // Populate WhatsApp elements
+    document.querySelectorAll('.protected-whatsapp').forEach(el => {
+      const msg = el.getAttribute('data-msg') || "Hi Siddharth, I'd like to connect with you.";
+      el.href = `https://wa.me/${rawPhone}?text=${encodeURIComponent(msg)}`;
+      el.setAttribute('target', '_blank');
+      el.setAttribute('rel', 'noopener noreferrer');
+
+      const phoneDisplay = el.querySelector('.protected-phone-display');
+      if (phoneDisplay) {
+        phoneDisplay.textContent = `${phoneFormatted} (Click to chat →)`;
+      }
+    });
+  } catch (err) {
+    console.error('Contact obfuscation error:', err);
+  }
+
+  // 8. GA4 EVENT TRACKING FOR WHATSAPP
+  document.querySelectorAll('.protected-whatsapp').forEach(btn => {
     btn.addEventListener('click', () => {
       if (typeof window.gtag === 'function') {
         window.gtag('event', 'click_whatsapp', {
